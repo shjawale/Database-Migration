@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # The database our users/traffic generator will write to
+  postgres_source:
+    image: postgres:16-alpine
+    container_name: cdc_postgres_source
+    environment:
+      POSTGRES_USER: engine_user
+      POSTGRES_PASSWORD: SecretPassword123
+      POSTGRES_DB: source_prod
+    ports:
+      - "5432:5432"
+    volumes:
+      - source_data:/var/lib/postgresql/data
+
+  # The database our C++ engine will replicate data INTO
+  postgres_target:
+    image: postgres:16-alpine
+    container_name: cdc_postgres_target
+    environment:
+      POSTGRES_USER: engine_user
+      POSTGRES_PASSWORD: SecretPassword123
+      POSTGRES_DB: target_replica
+    ports:
+      - "5433:5432" # Exposed on 5433 to avoid conflict on localhost
+    volumes:
+      - target_data:/var/lib/postgresql/data
+
+volumes:
+  source_data:
+  target_data:
+
